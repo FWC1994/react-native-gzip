@@ -1,5 +1,5 @@
 {
-  "name": "react-native-gzip",
+  "name": "@fengweichong/react-native-gzip",
   "title": "React Native Gzip",
   "version": "1.0.0",
   "description": "解压缩gzip格式文件",
@@ -16,8 +16,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github_account/react-native-gzip.git",
-    "baseUrl": "https://github.com/github_account/react-native-gzip"
+    "url": "git+https://github.com/FWC1994/react-native-gzip.git",
+    "baseUrl": "https://github.com/FWC1994/react-native-gzip"
   },
   "keywords": [
     "react-native",
