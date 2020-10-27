@@ -10,7 +10,7 @@
 
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import Gzip from 'react-native-gzip';
+import Gzip from '@fengweichong/react-native-gzip';
 import { DocumentDirectoryPath } from 'react-native-fs';
 
 export default class App extends Component<{}> {

@@ -13,7 +13,7 @@
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-fs": "^2.16.6",
-    "react-native-gzip": "link:../"
+    "@fengweichong/react-native-gzip": "link:../"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
