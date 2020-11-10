@@ -101,6 +101,8 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-annotations:23.0.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.parse.bolts:bolts-android:1.1.4@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.2.3@jar" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.6@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-compress:1.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.react:react-native:0.20.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.fresco:imagepipeline-okhttp:0.8.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.fresco:fresco:0.8.1@aar" level="project" />

@@ -11,8 +11,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.zip.GZIPInputStream;
+
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorInputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 public class GzipModule extends ReactContextBaseJavaModule {
 
@@ -28,57 +36,72 @@ public class GzipModule extends ReactContextBaseJavaModule {
         return "Gzip";
     }
 
-
-    /**
-     * 解压缩gz文件
-     * @param file 压缩包文件
-     * @param targetPath 目标文件夹
-     */
     @ReactMethod
-    private static void gunzip(String sourcePath, String targetPath, Promise promise){
-        FileInputStream  fileInputStream = null;
-        GZIPInputStream gzipIn = null;
-        OutputStream out = null;
-        String suffix = ".gz";
-        try {
-            File sourceFile = new File(sourcePath);
-            fileInputStream = new FileInputStream(sourceFile);
-            gzipIn = new GZIPInputStream(fileInputStream);
+    public void gunzip(String source, String dest, Boolean force, Promise promise) {
+        File sourceFile = new File(source);
+        if (!sourceFile.exists()) {
+            promise.reject("-2", "file not found");
+            return;
+        }
 
-            File destDir = new File(targetPath);
-            if (!destDir.exists()) {
-                destDir.mkdirs();
+        File destFolder = new File(dest);
+        if (destFolder.exists()) {
+            if (!force) {
+                promise.reject("-2", "folder exists");
+                return;
             }
 
-//            // 创建输出目录
-//            createDirectory(targetPath, null);
-
-            File tempFile = new File(targetPath + sourceFile.separator + sourceFile.getName().replace(suffix, ""));
-            out = new FileOutputStream(tempFile);
-            int count;
-            byte data[] = new byte[2048];
-            while ((count = gzipIn.read(data)) != -1) {
-                out.write(data, 0, count);
-            }
-            out.flush();
-            promise.resolve("{\"path\":" + targetPath + "}");
-        } catch (IOException e) {
-            e.printStackTrace();
-            promise.reject(e);
-        }finally {
             try {
-                if(out != null){
-                    out.close();
+                if (destFolder.isDirectory()) {
+                    FileUtils.deleteDirectory(destFolder);
+                } else {
+                    destFolder.delete();
                 }
-                if(gzipIn != null){
-                    gzipIn.close();
+                destFolder.mkdirs();
+            } catch (IOException ex) {
+                promise.reject("-2", "could not delete destination folder", ex);
+            }
+        }
+
+        ArchiveInputStream inputStream = null;
+        try {
+            final FileInputStream fileInputStream = FileUtils.openInputStream(sourceFile);
+            final CompressorInputStream compressorInputStream = new CompressorStreamFactory()
+                    .createCompressorInputStream(CompressorStreamFactory.GZIP, fileInputStream);
+
+            inputStream = new ArchiveStreamFactory()
+                    .createArchiveInputStream(ArchiveStreamFactory.TAR, compressorInputStream);
+
+            ArchiveEntry archiveEntry = inputStream.getNextEntry();
+            while (archiveEntry != null) {
+                File destFile = new File(destFolder, archiveEntry.getName());
+                if (archiveEntry.isDirectory()) {
+                    destFile.mkdirs();
+                } else {
+                    final FileOutputStream outputStream = FileUtils.openOutputStream(destFile);
+                    IOUtils.copy(inputStream, outputStream);
+                    outputStream.close();
                 }
-                if(fileInputStream != null){
-                    fileInputStream.close();
+                archiveEntry = inputStream.getNextEntry();
+            }
+
+            WritableMap map = Arguments.createMap();
+            map.putString("path", destFolder.getAbsolutePath());
+            promise.resolve(map);
+
+        } catch (IOException e) {
+            promise.reject("-2", e);
+        } catch (ArchiveException e) {
+            promise.reject("-2", "unable to open archive", e);
+        } catch (CompressorException e) {
+            promise.reject("-2", "unable to decompress file", e);
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                promise.reject(e);
             }
         }
     }
