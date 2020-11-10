@@ -12,18 +12,20 @@ import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import Gzip from '@fengweichong/react-native-gzip';
 import { DocumentDirectoryPath } from 'react-native-fs';
-
+console.log(Gzip)
 export default class App extends Component<{}> {
   state = {
     status: 'starting',
     message: '--'
   };
+
   componentDidMount() {
-    const targetPath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9.tar.gz`
-    const sourcePath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9`
+    const sourcePath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9.tar.gz`
+    const targetPath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9`
+    console.log(sourcePath)
     console.log(targetPath)
-    Gzip.gunzip(targetPath, sourcePath, true).then((res)=>{
-      console.log(res)
+    Gzip.gunzip(sourcePath, targetPath).then((res) => {
+      console.log('res', res)
     })
   }
   render() {
