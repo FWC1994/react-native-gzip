@@ -1,7 +1,7 @@
 {
   "name": "@fengweichong/react-native-gzip",
   "title": "React Native Gzip",
-  "version": "1.1.0-dev-1",
+  "version": "1.1.0-dev-4",
   "description": "解压缩gzip格式文件",
   "main": "index.js",
   "files": [

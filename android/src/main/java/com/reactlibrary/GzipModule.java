@@ -64,16 +64,25 @@ public class GzipModule extends ReactContextBaseJavaModule {
         }
 
         ArchiveInputStream inputStream = null;
+        FileInputStream fileInputStream;
         try {
-            final FileInputStream fileInputStream = FileUtils.openInputStream(sourceFile);
-            final CompressorInputStream compressorInputStream = new CompressorStreamFactory()
-                    .createCompressorInputStream(CompressorStreamFactory.GZIP, fileInputStream);
-
-            inputStream = new ArchiveStreamFactory()
-                    .createArchiveInputStream(ArchiveStreamFactory.TAR, compressorInputStream);
+            try{
+                fileInputStream = FileUtils.openInputStream(sourceFile);
+                final CompressorInputStream compressorInputStream = new CompressorStreamFactory()
+                        .createCompressorInputStream(CompressorStreamFactory.GZIP, fileInputStream);
+                inputStream = new ArchiveStreamFactory()
+                        .createArchiveInputStream(ArchiveStreamFactory.TAR, compressorInputStream);
+            } catch (Exception e) {
+                fileInputStream = FileUtils.openInputStream(sourceFile);
+                inputStream = new ArchiveStreamFactory()
+                        .createArchiveInputStream(ArchiveStreamFactory.TAR, fileInputStream);
+            }
 
             ArchiveEntry archiveEntry = inputStream.getNextEntry();
+
             while (archiveEntry != null) {
+
+
                 File destFile = new File(destFolder, archiveEntry.getName());
                 if (archiveEntry.isDirectory()) {
                     destFile.mkdirs();
@@ -89,12 +98,9 @@ public class GzipModule extends ReactContextBaseJavaModule {
             map.putString("path", destFolder.getAbsolutePath());
             promise.resolve(map);
 
-        } catch (IOException e) {
+        } catch (IOException | ArchiveException e) {
+            e.printStackTrace();
             promise.reject("-2", e);
-        } catch (ArchiveException e) {
-            promise.reject("-2", "unable to open archive", e);
-        } catch (CompressorException e) {
-            promise.reject("-2", "unable to decompress file", e);
         } finally {
             try {
                 if (inputStream != null) {
@@ -102,7 +108,9 @@ public class GzipModule extends ReactContextBaseJavaModule {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                promise.reject("-2", e);
             }
         }
     }
 }
+
