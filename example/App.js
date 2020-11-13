@@ -20,13 +20,13 @@ export default class App extends Component<{}> {
   };
 
   componentDidMount() {
-    const sourcePath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9.tar.gz`
-    const targetPath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9`
-    console.log(sourcePath)
-    console.log(targetPath)
-    Gzip.gunzip(sourcePath, targetPath).then((res) => {
-      console.log('res', res)
-    })
+    // const sourcePath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9.tar.gz`
+    // const targetPath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9`
+    // console.log(sourcePath)
+    // console.log(targetPath)
+    // Gzip.gunzip(sourcePath, targetPath).then((res) => {
+    //   console.log('res', res)
+    // })
   }
   render() {
     return (

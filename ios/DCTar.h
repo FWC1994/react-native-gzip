@@ -13,7 +13,6 @@
  versus the in memory data options.
  */
 #import <Foundation/Foundation.h>
-#import "NVHTarGzip.h"
 @interface DCTar : NSObject
 
 /**
