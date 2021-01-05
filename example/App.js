@@ -8,36 +8,38 @@
  * https://github.com/facebook/react-native
  */
 
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Text } from 'react-native';
 import Gzip from '@fengweichong/react-native-gzip';
 import { DocumentDirectoryPath } from 'react-native-fs';
 console.log(Gzip)
-export default class App extends Component<{}> {
-  state = {
-    status: 'starting',
-    message: '--'
-  };
+export default function App() {
+  useEffect(() => {
+    console.log(DocumentDirectoryPath)
 
-  componentDidMount() {
-    // const sourcePath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9.tar.gz`
-    // const targetPath = `${DocumentDirectoryPath}/2f7a8de0befd403b8eff2bf9939fb8a9`
-    // console.log(sourcePath)
-    // console.log(targetPath)
-    // Gzip.gunzip(sourcePath, targetPath).then((res) => {
-    //   console.log('res', res)
-    // })
-  }
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>☆Gzip example☆</Text>
-        <Text style={styles.instructions}>STATUS: {this.state.status}</Text>
-        <Text style={styles.welcome}>☆NATIVE CALLBACK MESSAGE☆</Text>
-        <Text style={styles.instructions}>{this.state.message}</Text>
-      </View>
-    );
-  }
+    const tarSource = `${DocumentDirectoryPath}/test.tar`;
+    const tarTarget = `${DocumentDirectoryPath}/tar`;
+
+    Gzip.unTar(tarSource, tarTarget, true).then((result) => {
+      console.log(result)
+    }).catch((err) => {
+      console.error(err)
+    })
+
+    const gzipTarSource = `${DocumentDirectoryPath}/test.tar.gz`;
+    const gzipTarTarget = `${DocumentDirectoryPath}/gzipTar`;
+
+    Gzip.unGzipTar(gzipTarSource, gzipTarTarget, true).then((result) => {
+      console.log(result)
+    }).catch((err) => {
+      console.error(err)
+    })
+  }, [])
+  return (
+    <View style={styles.container}>
+      <Text>请将文件拷贝至指定目录测试</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -46,15 +48,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });

@@ -37,53 +37,26 @@ public class GzipModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void gunzip(String source, String dest, Boolean force, Promise promise) {
+    public void unTar(String source, String target, Boolean force, Promise promise) {
         File sourceFile = new File(source);
-        if (!sourceFile.exists()) {
-            promise.reject("-2", "file not found");
+        File targetFile = new File(target);
+        if(!checkDir(sourceFile, targetFile, force)){
+            promise.reject("-2", "error");
             return;
-        }
-
-        File destFolder = new File(dest);
-        if (destFolder.exists()) {
-            if (!force) {
-                promise.reject("-2", "folder exists");
-                return;
-            }
-
-            try {
-                if (destFolder.isDirectory()) {
-                    FileUtils.deleteDirectory(destFolder);
-                } else {
-                    destFolder.delete();
-                }
-                destFolder.mkdirs();
-            } catch (IOException ex) {
-                promise.reject("-2", "could not delete destination folder", ex);
-            }
         }
 
         ArchiveInputStream inputStream = null;
         FileInputStream fileInputStream;
-        try {
-            try{
-                fileInputStream = FileUtils.openInputStream(sourceFile);
-                final CompressorInputStream compressorInputStream = new CompressorStreamFactory()
-                        .createCompressorInputStream(CompressorStreamFactory.GZIP, fileInputStream);
-                inputStream = new ArchiveStreamFactory()
-                        .createArchiveInputStream(ArchiveStreamFactory.TAR, compressorInputStream);
-            } catch (Exception e) {
-                fileInputStream = FileUtils.openInputStream(sourceFile);
-                inputStream = new ArchiveStreamFactory()
-                        .createArchiveInputStream(ArchiveStreamFactory.TAR, fileInputStream);
-            }
+
+        try{
+            fileInputStream = FileUtils.openInputStream(sourceFile);
+            inputStream = new ArchiveStreamFactory()
+                    .createArchiveInputStream(ArchiveStreamFactory.TAR, fileInputStream);
 
             ArchiveEntry archiveEntry = inputStream.getNextEntry();
 
             while (archiveEntry != null) {
-
-
-                File destFile = new File(destFolder, archiveEntry.getName());
+                File destFile = new File(targetFile, archiveEntry.getName());
                 if (archiveEntry.isDirectory()) {
                     destFile.mkdirs();
                 } else {
@@ -95,22 +68,106 @@ public class GzipModule extends ReactContextBaseJavaModule {
             }
 
             WritableMap map = Arguments.createMap();
-            map.putString("path", destFolder.getAbsolutePath());
+            map.putString("path", targetFile.getAbsolutePath());
             promise.resolve(map);
-
-        } catch (IOException | ArchiveException e) {
+        } catch (ArchiveException | IOException  e) {
             e.printStackTrace();
-            promise.reject("-2", e);
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
+            promise.reject("-2", "untar error");
+        }
+    }
+
+    @ReactMethod
+    public void unGzip(String source, String target, Boolean force, Promise promise) {
+        File sourceFile = new File(source);
+        File targetFile = new File(target);
+        if(!checkDir(sourceFile, targetFile, force)){
+            promise.reject("-2", "error");
+            return;
+        }
+
+        FileInputStream fileInputStream;
+
+        try{
+            fileInputStream = FileUtils.openInputStream(sourceFile);
+            final CompressorInputStream compressorInputStream = new CompressorStreamFactory()
+                    .createCompressorInputStream(CompressorStreamFactory.GZIP, fileInputStream);
+
+            final FileOutputStream outputStream = FileUtils.openOutputStream(targetFile);
+            IOUtils.copy(compressorInputStream, outputStream);
+            outputStream.close();
+
+            WritableMap map = Arguments.createMap();
+            map.putString("path", targetFile.getAbsolutePath());
+            promise.resolve(map);
+        } catch (IOException | CompressorException e) {
+            e.printStackTrace();
+            promise.reject("-2", "ungzip error");
+        }
+    }
+
+    @ReactMethod
+    public void unGzipTar(String source, String target, Boolean force, Promise promise) {
+        File sourceFile = new File(source);
+        File targetFile = new File(target);
+        if(!checkDir(sourceFile, targetFile, force)){
+            promise.reject("-2", "error");
+            return;
+        }
+
+        ArchiveInputStream inputStream = null;
+        FileInputStream fileInputStream;
+
+        try{
+            fileInputStream = FileUtils.openInputStream(sourceFile);
+            final CompressorInputStream compressorInputStream = new CompressorStreamFactory()
+                    .createCompressorInputStream(CompressorStreamFactory.GZIP, fileInputStream);
+            inputStream = new ArchiveStreamFactory()
+                    .createArchiveInputStream(ArchiveStreamFactory.TAR, compressorInputStream);
+            ArchiveEntry archiveEntry = inputStream.getNextEntry();
+
+            while (archiveEntry != null) {
+                File destFile = new File(targetFile, archiveEntry.getName());
+                if (archiveEntry.isDirectory()) {
+                    destFile.mkdirs();
+                } else {
+                    final FileOutputStream outputStream = FileUtils.openOutputStream(destFile);
+                    IOUtils.copy(inputStream, outputStream);
+                    outputStream.close();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                promise.reject("-2", e);
+                archiveEntry = inputStream.getNextEntry();
+            }
+
+            WritableMap map = Arguments.createMap();
+            map.putString("path", targetFile.getAbsolutePath());
+            promise.resolve(map);
+        } catch (IOException | CompressorException | ArchiveException e) {
+            e.printStackTrace();
+            promise.reject("-2", "ungzip error");
+        }
+    }
+
+    private Boolean checkDir(File sourceFile, File targetFile, Boolean force) {
+        if (!sourceFile.exists()) {
+            return false;
+        }
+
+        if (targetFile.exists()) {
+            if (!force) {
+                return false;
+            }
+
+            try {
+                if (targetFile.isDirectory()) {
+                    FileUtils.deleteDirectory(targetFile);
+                } else {
+                    targetFile.delete();
+                }
+                targetFile.mkdirs();
+            } catch (IOException ex) {
+                return false;
             }
         }
+        return true;
     }
 }
 

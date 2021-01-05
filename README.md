@@ -1,29 +1,41 @@
 # react-native-gzip
-加压缩gzip格式文件
-## Getting started
+解压缩gzip和tar格式文件
+- IOS实现基于[NVHTarGzip](https://github.com/nvh/NVHTarGzip)
+- Android实现基于[CompressorStreamFactory](https://commons.apache.org/proper/commons-compress/apidocs/org/apache/commons/compress/compressors/CompressorStreamFactory.html)和[ArchiveStreamFactory](https://commons.apache.org/proper/commons-compress/javadocs/api-1.18/org/apache/commons/compress/archivers/ArchiveStreamFactory.html)
 
-`$ npm install react-native-gzip --save`
+## 安装
 
-### Mostly automatic installation
+```
+npm install @fengweichong/react-native-gzip --save
 
-`$ react-native link react-native-gzip`
-
-## Usage
+ios -> pod install
+```
+## 使用
 ```javascript
-import Gzip from 'react-native-gzip';
+import Gzip from '@fengweichong/react-native-gzip';
 
-// TODO: What to do with the module?
-const sourcePath = `${somePath}/xxx.gz`
-const targetPath = `${somePath}/xxx`
+const sourcePath = `${PATH}/xxx.gz`
+const targetPath = `${PATH}/xxx`
 
-Gzip.gunzip(sourcePath, targetPath, true).then((res)=>{
+// 解压缩tar
+Gzip.unTar(sourcePath, targetPath, true).then((res)=>{
+    console.log(res)
+})
+
+// 解压缩gzip
+Gzip.unGzip(sourcePath, targetPath, true).then((res)=>{
+    console.log(res)
+})
+
+// 解压缩gzip和tar
+Gzip.unGzipTar(sourcePath, targetPath, true).then((res)=>{
     console.log(res)
 })
 ```
-gunzip params
-|  params   | des  |  must  |
+### 参数
+|  名称   | 说明  |  会否必须  |
 |  ----  | ----  |  ----  |
-| sourcePath  | the path of .gz file |  true  |
-| targetPath  | gunzip target path |  true  |
-| force  | cover if exist |  true  |
+| sourcePath  | 目标文件地址 |  true  |
+| targetPath  | 解压目标地址 |  true  |
+| force  | 是否覆盖目标地址 |  true  |
 
