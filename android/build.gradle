@@ -74,7 +74,9 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
     implementation 'commons-io:commons-io:2.5'
-    implementation 'org.apache.commons:commons-compress:1.1'
+    implementation 'org.apache.commons:commons-compress:1.21'
+    // https://mvnrepository.com/artifact/org.kamranzafar/jtar
+    implementation 'org.kamranzafar:jtar:2.2'
 }
 
 def configureReactNativePom(def pom) {
